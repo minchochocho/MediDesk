@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../../../../../../../../SourceBank/MediDesk/MediDesk.Api/MediDesk.Api.csproj" />
+  <Project Path="../../../../../../../../SourceBank/MediDesk/MediDesk.Client/MediDesk.Client.csproj" />
+</Solution>

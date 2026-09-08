@@ -1,0 +1,6 @@
+@MediDesk.Api_HostAddress = http://localhost:5200
+
+GET {{MediDesk.Api_HostAddress}}
+Accept: application/json
+
+###
