@@ -53,5 +53,17 @@ namespace MediDesk.Client.Views {
                 await LoadVisitsAsync();
             }
         }
+
+        private void VisitDataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+            if (VisitDataGrid.SelectedItem is not Visit visit) {
+                return;
+            }
+
+            var window = new PrescriptionWindow(visit) {
+                Owner = this
+            };
+
+            window.ShowDialog();
+        }
     }
 }

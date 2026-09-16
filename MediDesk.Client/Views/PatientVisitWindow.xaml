@@ -38,7 +38,8 @@
             AutoGenerateColumns="False"
             IsReadOnly="True"
             SelectionMode="Single"
-            SelectionUnit="FullRow">
+            SelectionUnit="FullRow"
+            MouseDoubleClick="VisitDataGrid_MouseDoubleClick">
 
             <DataGrid.Columns>
 
