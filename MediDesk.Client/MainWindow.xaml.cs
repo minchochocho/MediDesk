@@ -1,6 +1,7 @@
 ﻿using MediDesk.Client.Models;
 using MediDesk.Client.Services;
 using MediDesk.Client.Views;
+using System.Net.Http;
 using System.Windows;
 
 namespace MediDesk.Client {
@@ -25,9 +26,14 @@ namespace MediDesk.Client {
                     await _patientService.GetPatientsAsync();
 
                 PatientDataGrid.ItemsSource = patients;
-            } catch (Exception ex) {
-                MessageBox.Show(
-                    $"환자 목록을 불러오지 못했습니다.\n{ex.Message}");
+            } catch (HttpRequestException ex) when (ex.StatusCode is null) {
+                MessageBox.Show("API 서버에 연결할 수 없습니다.");
+            } catch (HttpRequestException) {
+                MessageBox.Show("서버에서 환자 목록 요청을 처리하지 못했습니다.");
+            } catch (TaskCanceledException) {
+                MessageBox.Show("요청 시간이 초과되었습니다.");
+            } catch (Exception) {
+                MessageBox.Show("환자 목록을 불러오지 못했습니다.");
             }
         }
         private async void BtnAddPatient_Click(
@@ -84,17 +90,24 @@ namespace MediDesk.Client {
                 return;
             }
 
-            bool success =
-                await _patientService.DeletePatientAsync(
-                    selectedPatient.PatientId
-                );
+            try {
+                var (success, errorMessage) =
+                    await _patientService.DeletePatientAsync(
+                        selectedPatient.PatientId
+                    );
 
-            if (success) {
-                MessageBox.Show("환자가 삭제되었습니다.");
-
-                await LoadPatientsAsync();
-            } else {
-                MessageBox.Show("환자 삭제에 실패했습니다.");
+                if (success) {
+                    MessageBox.Show("환자가 삭제되었습니다.");
+                    await LoadPatientsAsync();
+                } else {
+                    MessageBox.Show(errorMessage ?? "환자 삭제에 실패했습니다.");
+                }
+            } catch (HttpRequestException) {
+                MessageBox.Show("API 서버에 연결할 수 없습니다.");
+            } catch (TaskCanceledException) {
+                MessageBox.Show("요청 시간이 초과되었습니다.");
+            } catch (Exception) {
+                MessageBox.Show("환자 삭제 중 오류가 발생했습니다.");
             }
         }
 

@@ -1,6 +1,29 @@
 @MediDesk.Api_HostAddress = http://localhost:5200
 
-GET {{MediDesk.Api_HostAddress}}
+GET {{MediDesk.Api_HostAddress}}/api/patients
 Accept: application/json
 
 ###
+
+GET {{MediDesk.Api_HostAddress}}/api/visits
+Accept: application/json
+
+###
+
+GET {{MediDesk.Api_HostAddress}}/api/prescriptions
+Accept: application/json
+
+###
+
+# 유효성 검증 예시: 저장되지 않고 400 Bad Request를 반환해야 합니다.
+POST {{MediDesk.Api_HostAddress}}/api/prescriptions
+Content-Type: application/json
+
+{
+  "visitId": 0,
+  "drugName": "",
+  "dosage": "",
+  "frequency": 0,
+  "days": 0,
+  "instructions": ""
+}

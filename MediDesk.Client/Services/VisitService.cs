@@ -1,7 +1,6 @@
 ﻿using MediDesk.Client.Models;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Windows;
 
 namespace MediDesk.Client.Services {
     public class VisitService {
@@ -9,7 +8,7 @@ namespace MediDesk.Client.Services {
 
         public VisitService() {
             _httpClient = new HttpClient {
-                BaseAddress = new Uri("http://localhost:5200/")
+                BaseAddress = ApiSettings.BaseAddress
             };
         }
 
@@ -23,23 +22,19 @@ namespace MediDesk.Client.Services {
             return visits ?? new List<Visit>();
         }
         // POST 메서드
-        public async Task<bool> CreateVisitAsync(Visit visit) {
-            var response = await _httpClient.PostAsJsonAsync(
+        public async Task<(bool Success, string? ErrorMessage)> CreateVisitAsync(
+            Visit visit) {
+            using var response = await _httpClient.PostAsJsonAsync(
                 "api/visits",
                 visit
             );
 
-            if (!response.IsSuccessStatusCode) {
-                var error = await response.Content.ReadAsStringAsync();
-
-                MessageBox.Show(
-                    $"진료 등록 실패\n" +
-                    $"Status: {(int)response.StatusCode} {response.StatusCode}\n\n" +
-                    $"Response:\n{error}"
-                );
+            if (response.IsSuccessStatusCode) {
+                return (true, null);
             }
 
-            return response.IsSuccessStatusCode;
+            string errorMessage = await ApiErrorReader.ReadAsync(response);
+            return (false, errorMessage);
         }
     }
 }

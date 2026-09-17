@@ -8,7 +8,7 @@ namespace MediDesk.Client.Services {
 
         public PrescriptionService() {
             _httpClient = new HttpClient {
-                BaseAddress = new Uri("http://localhost:5200/")
+                BaseAddress = ApiSettings.BaseAddress
             };
         }
 
@@ -24,14 +24,16 @@ namespace MediDesk.Client.Services {
         }
 
         // 처방 등록
-        public async Task<bool> CreatePrescriptionAsync(
+        public async Task<(bool Success, string? ErrorMessage)> CreatePrescriptionAsync(
             Prescription prescription) {
-            var response = await _httpClient.PostAsJsonAsync(
+            using var response = await _httpClient.PostAsJsonAsync(
                 "api/prescriptions",
                 prescription
             );
 
-            return response.IsSuccessStatusCode;
+            return response.IsSuccessStatusCode
+                ? (true, null)
+                : (false, await ApiErrorReader.ReadAsync(response));
         }
     }
 }

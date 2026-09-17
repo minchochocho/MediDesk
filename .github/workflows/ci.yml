@@ -1,0 +1,23 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore
+        run: dotnet restore MediDesk.slnx
+      - name: Build
+        run: dotnet build MediDesk.slnx --no-restore -m:1
+      - name: Test
+        run: dotnet test MediDesk.Api.Tests/MediDesk.Api.Tests.csproj --no-build --no-restore

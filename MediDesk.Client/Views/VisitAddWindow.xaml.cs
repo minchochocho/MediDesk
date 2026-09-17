@@ -1,5 +1,6 @@
 ﻿using MediDesk.Client.Models;
 using MediDesk.Client.Services;
+using System.Net.Http;
 using System.Windows;
 
 namespace MediDesk.Client.Views {
@@ -50,20 +51,22 @@ namespace MediDesk.Client.Views {
             };
 
             try {
-                bool success =
+                var (success, errorMessage) =
                     await _visitService.CreateVisitAsync(visit);
 
                 if (success) {
                     MessageBox.Show("진료가 등록되었습니다.");
-
                     DialogResult = true;
                     Close();
                 } else {
-                    MessageBox.Show("진료 등록에 실패했습니다.");
+                    MessageBox.Show(errorMessage ?? "진료 등록에 실패했습니다.");
                 }
-            } catch (Exception ex) {
-                MessageBox.Show(
-                    $"진료 등록 중 오류가 발생했습니다.\n{ex.Message}");
+            } catch (HttpRequestException) {
+                MessageBox.Show("API 서버에 연결할 수 없습니다.");
+            } catch (TaskCanceledException) {
+                MessageBox.Show("요청 시간이 초과되었습니다.");
+            } catch (Exception) {
+                MessageBox.Show("진료 등록 중 오류가 발생했습니다.");
             }
         }
 

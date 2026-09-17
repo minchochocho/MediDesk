@@ -11,7 +11,7 @@ namespace MediDesk.Client.Services {
         public PatientService() {
             _httpClient = new HttpClient {
                 // 기본 주소 설정
-                BaseAddress = new Uri("http://localhost:5200/")
+                BaseAddress = ApiSettings.BaseAddress
             };
         }
 
@@ -26,33 +26,38 @@ namespace MediDesk.Client.Services {
         }
 
         // 새로운 환자를 서버에 등록
-        public async Task<bool> CreatePatientAsync(Patient patient) {
-            // POST 요청
-            var response = await _httpClient.PostAsJsonAsync(
+        public async Task<(bool Success, string? ErrorMessage)> CreatePatientAsync(Patient patient) {
+            using var response = await _httpClient.PostAsJsonAsync(
                 "api/patients",
                 patient
             );
-            // HTTP 상태 코드가 성공 범위(200~299)인지 확인
-            return response.IsSuccessStatusCode;
+
+            return response.IsSuccessStatusCode
+                ? (true, null)
+                : (false, await ApiErrorReader.ReadAsync(response));
         }
 
         // 업데이트
-        public async Task<bool> UpdatePatientAsync(int id, Patient patient) {
-            var response = await _httpClient.PutAsJsonAsync(
+        public async Task<(bool Success, string? ErrorMessage)> UpdatePatientAsync(int id, Patient patient) {
+            using var response = await _httpClient.PutAsJsonAsync(
                 $"api/patients/{id}",
                 patient
             );
 
-            return response.IsSuccessStatusCode;
+            return response.IsSuccessStatusCode
+                ? (true, null)
+                : (false, await ApiErrorReader.ReadAsync(response));
         }
 
         // 삭제
-        public async Task<bool> DeletePatientAsync(int id) {
-            var response = await _httpClient.DeleteAsync(
+        public async Task<(bool Success, string? ErrorMessage)> DeletePatientAsync(int id) {
+            using var response = await _httpClient.DeleteAsync(
                 $"api/patients/{id}"
             );
 
-            return response.IsSuccessStatusCode;
+            return response.IsSuccessStatusCode
+                ? (true, null)
+                : (false, await ApiErrorReader.ReadAsync(response));
         }
     }
 }

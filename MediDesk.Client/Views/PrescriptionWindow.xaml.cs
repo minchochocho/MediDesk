@@ -1,5 +1,6 @@
 ﻿using MediDesk.Client.Models;
 using MediDesk.Client.Services;
+using System.Net.Http;
 using System.Windows;
 
 namespace MediDesk.Client.Views {
@@ -34,9 +35,14 @@ namespace MediDesk.Client.Views {
                         );
 
                 PrescriptionDataGrid.ItemsSource = prescriptions;
-            } catch (Exception ex) {
-                MessageBox.Show(
-                    $"처방 내역을 불러오지 못했습니다.\n{ex.Message}");
+            } catch (HttpRequestException ex) when (ex.StatusCode is null) {
+                MessageBox.Show("API 서버에 연결할 수 없습니다.");
+            } catch (HttpRequestException) {
+                MessageBox.Show("서버에서 처방 목록 요청을 처리하지 못했습니다.");
+            } catch (TaskCanceledException) {
+                MessageBox.Show("요청 시간이 초과되었습니다.");
+            } catch (Exception) {
+                MessageBox.Show("처방 내역을 불러오지 못했습니다.");
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using MediDesk.Client.Models;
 using MediDesk.Client.Services;
+using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -58,19 +59,27 @@ namespace MediDesk.Client.Views {
                 CreatedAt = _patient.CreatedAt
             };
 
-            bool success =
-                await _patientService.UpdatePatientAsync(
+            try {
+                var (success, errorMessage) =
+                    await _patientService.UpdatePatientAsync(
                     _patient.PatientId,
                     updatedPatient
                 );
 
-            if (success) {
-                MessageBox.Show("환자 정보가 수정되었습니다.");
+                if (success) {
+                    MessageBox.Show("환자 정보가 수정되었습니다.");
 
-                DialogResult = true;
-                Close();
-            } else {
-                MessageBox.Show("환자 수정에 실패했습니다.");
+                    DialogResult = true;
+                    Close();
+                } else {
+                    MessageBox.Show(errorMessage ?? "환자 수정에 실패했습니다.");
+                }
+            } catch (HttpRequestException) {
+                MessageBox.Show("API 서버에 연결할 수 없습니다.");
+            } catch (TaskCanceledException) {
+                MessageBox.Show("요청 시간이 초과되었습니다.");
+            } catch (Exception) {
+                MessageBox.Show("환자 수정 중 오류가 발생했습니다.");
             }
         }
 
